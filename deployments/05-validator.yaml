@@ -1,0 +1,29 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: webhook-validator
+webhooks:
+  - name: webhook.webhook-system.svc
+    admissionReviewVersions: ["v1"]
+    sideEffects: None
+    timeoutSeconds: 5
+    failurePolicy: Fail
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values: ["webhook-system"]  # 👈 reject only our namespace
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: webhook-system
+        path: /validate
+        port: 443
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUVJVENDQXdtZ0F3SUJBZ0lVYnpRVysvWm5rUitsYnRadVIxcnVaTFRlSWtFd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0xURXJNQ2tHQTFVRUF3d2lkMlZpYUc5dmF5MXpaWEoyYVdObExuZGxZbWh2YjJzdGMzbHpkR1Z0TG5OMgpZekFlRncweU5qQXpNVFl5TVRRNE1UWmFGdzB5TnpBek1UWXlNVFE0TVRaYU1DMHhLekFwQmdOVkJBTU1JbmRsClltaHZiMnN0YzJWeWRtbGpaUzUzWldKb2IyOXJMWE41YzNSbGJTNXpkbU13Z2dFaU1BMEdDU3FHU0liM0RRRUIKQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUNMbkg4cHhOSDBFREdCU0xXL3RGYmdtS3FVN2NZSWlJOUI5WENkQ0RvMgpveHBIMWU3U0V1UHZYRG10UGdlWjNONnJaTm42a3FCVWNERzNrNGUxVDhxV25BcmFic3hVellYMUllaVZaNnpCCnNxUk1ZdlNhL0RLUEQwTDYraS9nM1N4L0pKT21JaG9KWEVXZjhSWHlvUEFGRWlLbHNoV0N1RFZJMytzWm9RcEgKZkpkekdSNmZncWl4VjloRUl6SXMzM01rTDNxZjRqU09ObkhTVnFidzFJSE1pODRFUUNzYlc3bytUSGtyeDZJMQptcW8yRTVncTNZRFJTQ0NYS1VsSGNPN2xNcXhhMk9ScjFqQUxmdmF2a2JSUEM2TzJUSE9xbDQ4ZllIbnVIc2toCjhEMHBxWWtyenk4ZTQrTnNxWnUxdzNGdkxZZGphM1VLOUxhM0tKQTZOMFRUQWdNQkFBR2pnZ0UzTUlJQk16QUwKQmdOVkhROEVCQU1DQkRBd0V3WURWUjBsQkF3d0NnWUlLd1lCQlFVSEF3RXdnZThHQTFVZEVRU0I1ekNCNUlJaQpkMlZpYUc5dmF5MXpaWEoyYVdObExuZGxZbWh2YjJzdGMzbHpkR1Z0TG5OMlk0SXhkMlZpYUc5dmF5MXpaWEoyCmFXTmxMbmRsWW1odmIyc3RjM2x6ZEdWdExuTjJZeTUzWldKb2IyOXJMWE41YzNSbGJZSTFkMlZpYUc5dmF5MXoKWlhKMmFXTmxMbmRsWW1odmIyc3RjM2x6ZEdWdExuTjJZeTUzWldKb2IyOXJMWE41YzNSbGJTNXpkbU9DUTNkbApZbWh2YjJzdGMyVnlkbWxqWlM1M1pXSm9iMjlyTFhONWMzUmxiUzV6ZG1NdWQyVmlhRzl2YXkxemVYTjBaVzB1CmMzWmpMbU5zZFhOMFpYSXViRzlqWVd5Q0NXeHZZMkZzYUc5emRJY0Vmd0FBQVRBZEJnTlZIUTRFRmdRVTM0S1EKTW8vNWFFNTlhazBWc2V1SU1rd1R6OW93RFFZSktvWklodmNOQVFFTEJRQURnZ0VCQUdteDJqa3R2L3lUNy9wWgpQOTBUcW4vdGxXdUMrNy85alY1Q1RLdktzWGFUUnl2dTcxUTRBaXkzQ1pZYld6T0FZNFJ1eFdGNGFuNWgwNUx5CitvY3g5YjJFd1VVZzVBQ3NWeFQwMkdNM3NabS9tam1iMm8vSXZ0TnBrNFV6VjlEZWJWRmdLdktWaXJGK1FkdmUKZlNXKy9KL1dqNllTOHJETndQSWE5d3JVREZRSDlmR0hSSC9acmlCVWVPWUp5a2d6bS9reUo1ZVR1M1R5YVAzKwpGb2lLcm95a3VwckhmYkx0Y1EwcU1CVnJDSFNnbUVNOThyQVRDbDRsek9HdmRmYWVuRUw5NVFPWURBeHgyalF1CjJXVFZVcFY2b201TzdFaTNGZWpvSE54OUxCc1UzU2JWbm8xZkw4dCtiaXBYbnIrKzBhSXQzSThwMDd1VmZFZlUKQ3orVDM2OD0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+    rules:
+      - operations: ["CREATE", "UPDATE"]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+
+

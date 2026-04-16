@@ -1,0 +1,20 @@
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+CN = webhook-service.webhook-system.svc
+
+[v3_req]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = webhook-service.webhook-system.svc
+DNS.2 = webhook-service.webhook-system.svc.webhook-system
+DNS.3 = webhook-service.webhook-system.svc.webhook-system.svc
+DNS.4 = webhook-service.webhook-system.svc.webhook-system.svc.cluster.local
+DNS.5 = localhost
+IP.1 = 127.0.0.1
