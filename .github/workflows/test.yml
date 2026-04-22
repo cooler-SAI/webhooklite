@@ -19,5 +19,5 @@ jobs:
 
       - name: Run tests
         run: |
-          cd webhooklite/cmd/webhooklite
+          cd ./cmd/webhooklite
           go test -v -mod=mod
