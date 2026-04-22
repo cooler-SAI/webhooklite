@@ -31,7 +31,7 @@ jobs:
 
       - name: Build Docker Image (for scanning)
         run: |
-          docker build -t local-scan-image:${{ github.sha }} -f webhooklite/build/Dockerfile webhooklite
+          docker build -t local-scan-image:${{ github.sha }} -f build/Dockerfile .
 
       - name: 🚨 Trivy Vulnerability Scan
         id: trivy
@@ -89,8 +89,8 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: ./webhooklite
-          file: ./webhooklite/build/Dockerfile
+          context: .
+          file: ./build/Dockerfile
           push: true
           tags: ${{ steps.image_tag.outputs.IMAGE_TAG }}
           platforms: linux/amd64
