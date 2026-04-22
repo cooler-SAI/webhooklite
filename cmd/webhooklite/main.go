@@ -190,14 +190,14 @@ func handleValidate(w http.ResponseWriter, r *http.Request) {
 
 func handleHealth(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "ok")
+	_, _ = fmt.Fprintf(w, "ok")
 }
 
 func handleRoot(w http.ResponseWriter, _ *http.Request) {
-	fmt.Fprintf(w, "webhooklite is running\n")
-	fmt.Fprintf(w, "Endpoints:\n")
-	fmt.Fprintf(w, "  /health - health check\n")
-	fmt.Fprintf(w, "  /validate - admission webhook\n")
+	_, _ = fmt.Fprintf(w, "webhooklite is running\n")
+	_, _ = fmt.Fprintf(w, "Endpoints:\n")
+	_, _ = fmt.Fprintf(w, "  /health - health check\n")
+	_, _ = fmt.Fprintf(w, "  /validate - admission webhook\n")
 }
 
 func main() {
