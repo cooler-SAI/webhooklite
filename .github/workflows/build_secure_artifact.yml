@@ -31,7 +31,7 @@ jobs:
 
       - name: Build Docker Image (for scanning)
         run: |
-          cd websecure
+          cd webhooklite
           docker build -t local-scan-image:${{ github.sha }} .
 
       - name: 🚨 Trivy Vulnerability Scan
