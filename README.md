@@ -1,5 +1,9 @@
 # webhooklite
 
+[![Go Version](https://img.shields.io/badge/Go-1.26.3-blue.svg)](https://golang.org/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-1.34-blue.svg)](https://kubernetes.io/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 Kubernetes admission webhook with 8 security policies. Blocks insecure pods BEFORE they enter the cluster.
 
 ## 8 rules
