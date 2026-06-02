@@ -1,6 +1,6 @@
 # webhooklite
 
-[![Go Version](https://img.shields.io/badge/Go-1.26.3-blue.svg)](https://golang.org/)
+[![Go Version](https://img.shields.io/badge/Go-1.26.4-blue.svg)](https://golang.org/)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-1.34-blue.svg)](https://kubernetes.io/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
