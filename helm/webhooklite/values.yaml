@@ -1,0 +1,149 @@
+# ============================================
+# webhooklite Helm Chart Values
+# ============================================
+
+# ----------------------------
+# Basic Settings
+# ----------------------------
+namespace: webhook-system
+appName: webhook
+replicaCount: 1
+
+# ----------------------------
+# Image Settings
+# ----------------------------
+image:
+  repository: ghcr.io/cooler-sai/webhooklite
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# ----------------------------
+# ServiceAccount Settings
+# ----------------------------
+serviceAccount:
+  name: webhook-sa
+
+# ----------------------------
+# ClusterRole and ClusterRoleBinding
+# ----------------------------
+clusterRole:
+  name: webhook-role
+  rules:
+    pods:
+      verbs: ["get", "list", "watch"]
+    webhookconfigs:
+      verbs: ["get", "list", "watch", "update"]
+
+clusterRoleBinding:
+  name: webhook-binding
+
+# ----------------------------
+# SecurityContext (Pod level)
+# ----------------------------
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+
+# ----------------------------
+# SecurityContext (Container level)
+# ----------------------------
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - "ALL"
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1001
+  seccompProfile:
+    type: RuntimeDefault
+
+# ----------------------------
+# Service Settings
+# ----------------------------
+service:
+  name: webhook-service
+  port: 443
+  targetPort: 8443
+  protocol: TCP
+  type: ClusterIP
+
+# ----------------------------
+# Deployment Settings
+# ----------------------------
+deployment:
+  name: webhook-deployment
+
+# ----------------------------
+# Namespace Settings
+# ----------------------------
+namespaceLabels:
+  podSecurityEnforce: restricted
+
+# ----------------------------
+# Secret Settings
+# ----------------------------
+secret:
+  create: true
+  name: webhook-certs
+  type: kubernetes.io/tls
+  tls:
+    crt: ""   # passed via --set-file
+    key: ""   # passed via --set-file
+
+# ----------------------------
+# ValidatingWebhook Settings
+# ----------------------------
+validatingWebhook:
+  name: webhook-validator
+  webhookName: webhook.webhook-system.svc
+  admissionReviewVersions:
+    - v1
+  sideEffects: None
+  timeoutSeconds: 5
+  failurePolicy: Fail
+  
+  namespaceSelector:
+    key: kubernetes.io/metadata.name
+    operator: NotIn
+    values:
+      - webhook-system
+  
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: webhook-system
+      path: /validate
+      port: 443
+    caBundle: ""   # passed via --set-file
+  
+  rules:
+    - operations: ["CREATE", "UPDATE"]
+      apiGroups: [""]
+      apiVersions: ["v1"]
+      resources: ["pods"]
+
+# ----------------------------
+# Volume Settings (certs)
+# ----------------------------
+volumes:
+  certs:
+    name: certs
+    mountPath: /certs
+    readOnly: true
+    secret:
+      secretName: webhook-certs
+      defaultMode: 0400
+
+# ----------------------------
+# Resource Settings (optional)
+# ----------------------------
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

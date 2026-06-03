@@ -1,0 +1,43 @@
+apiVersion: v2
+name: webhooklite
+description: A Kubernetes admission webhook that enforces 8 security policies including pod security standards, container security, and resource validation
+type: application
+
+# Chart version - follows Semantic Versioning
+version: 0.1.0
+
+# Application version - matches your GitHub release tags
+appVersion: "1.0.0"
+
+# Where to find more information
+home: https://github.com/cooler-sai/webhooklite
+sources:
+  - https://github.com/cooler-sai/webhooklite
+
+# Who maintains this chart
+maintainers:
+  - name: Cooler Sai
+    email: cooler.sai@example.com
+    url: https://github.com/cooler-sai
+
+# Search keywords for Helm Hub/Artifact Hub
+keywords:
+  - admission-controller
+  - validating-webhook
+  - pod-security
+  - security-policies
+  - kubernetes
+
+# Additional metadata for Artifact Hub
+annotations:
+  artifacthub.io/license: MIT
+  artifacthub.io/operator: "false"
+  artifacthub.io/categories: "security,networking"
+  artifacthub.io/support: https://github.com/cooler-sai/webhooklite/issues
+
+# Dependencies (если нужны в будущем)
+# dependencies:
+#   - name: cert-manager
+#     version: "1.x"
+#     repository: "https://charts.jetstack.io"
+#     condition: cert-manager.enabled
