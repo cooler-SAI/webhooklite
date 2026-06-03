@@ -1,8 +1,9 @@
 FROM golang:1.26-alpine AS builder
 WORKDIR /app
-COPY go.mod go.sum ./
+COPY go.mod ./
 RUN go mod download
-COPY cmd/ ./cmd/
+RUN go mod tidy
+COPY . .
 RUN go build -o webhook ./cmd/webhooklite
 
 FROM alpine:latest
