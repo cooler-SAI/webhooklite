@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name | default "webhook-deployment" }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.appName | default "webhook" }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.appName | default "webhook" }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName | default "webhook" }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name | default "webhook-sa" }}
+      securityContext:
+        runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+      containers:
+        - name: {{ .Values.appName | default "webhook" }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          securityContext:
+            allowPrivilegeEscalation: {{ .Values.containerSecurityContext.allowPrivilegeEscalation | default false }}
+            capabilities:
+              drop:
+              {{- range .Values.containerSecurityContext.capabilities.drop }}
+                - {{ . }}
+              {{- end }}
+            readOnlyRootFilesystem: {{ .Values.containerSecurityContext.readOnlyRootFilesystem | default true }}
+            runAsNonRoot: {{ .Values.containerSecurityContext.runAsNonRoot | default true }}
+            runAsUser: {{ .Values.containerSecurityContext.runAsUser | default 1001 }}
+            seccompProfile:
+              type: {{ .Values.containerSecurityContext.seccompProfile.type | default "RuntimeDefault" }}
+          volumeMounts:
+            - name: {{ .Values.volumes.certs.name | default "certs" }}
+              mountPath: {{ .Values.volumes.certs.mountPath | default "/certs" }}
+              readOnly: {{ .Values.volumes.certs.readOnly | default true }}
+      volumes:
+        - name: {{ .Values.volumes.certs.name | default "certs" }}
+          secret:
+            secretName: {{ .Values.volumes.certs.secret.secretName | default "webhook-certs" }}
+            defaultMode: {{ .Values.volumes.certs.secret.defaultMode | default 0400 }}

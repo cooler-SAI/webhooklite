@@ -1,0 +1,27 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: {{ .Values.validatingWebhook.name | default "webhook-validator" }}
+  labels:
+    {{- include "webhooklite.labels" . | nindent 4 }}
+webhooks:
+  - name: {{ .Values.validatingWebhook.webhookName | default "webhook.webhook-system.svc" }}
+    admissionReviewVersions: {{ toYaml .Values.validatingWebhook.admissionReviewVersions | nindent 6 }}
+    sideEffects: {{ .Values.validatingWebhook.sideEffects | default "None" }}
+    timeoutSeconds: {{ .Values.validatingWebhook.timeoutSeconds | default 5 }}
+    failurePolicy: {{ .Values.validatingWebhook.failurePolicy | default "Fail" }}
+    namespaceSelector:
+      matchExpressions:
+        - key: {{ .Values.validatingWebhook.namespaceSelector.key | default "kubernetes.io/metadata.name" }}
+          operator: {{ .Values.validatingWebhook.namespaceSelector.operator | default "NotIn" }}
+          values:
+            {{- toYaml .Values.validatingWebhook.namespaceSelector.values | nindent 12 }}
+    clientConfig:
+      service:
+        name: {{ .Values.validatingWebhook.clientConfig.service.name | default "webhook-service" }}
+        namespace: {{ .Values.validatingWebhook.clientConfig.service.namespace | default .Values.namespace }}
+        path: {{ .Values.validatingWebhook.clientConfig.service.path | default "/validate" }}
+        port: {{ .Values.validatingWebhook.clientConfig.service.port | default .Values.service.port }}
+      caBundle: {{ .Values.validatingWebhook.clientConfig.caBundle | default "" }}
+    rules:
+      {{- toYaml .Values.validatingWebhook.rules | nindent 6 }}

@@ -1,0 +1,14 @@
+webhooklite installed successfully!
+
+Release name: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+To check the deployment status:
+  kubectl get pods -n {{ .Release.Namespace }}
+
+To check the webhook logs:
+  kubectl logs -n {{ .Release.Namespace }} -l app={{ .Values.appName }}
+
+To test the webhook:
+  kubectl run good-pod --image=nginx:1.25 --restart=Never -n default
+  kubectl run bad-pod --image=nginx:latest --privileged -n default --restart=Never
