@@ -4,7 +4,7 @@ COPY go.mod ./
 RUN go mod download
 RUN go mod tidy
 COPY . .
-RUN go build -o webhook ./cmd/webhooklite
+RUN go build -mod=mod -o webhook ./cmd/webhooklite
 
 FROM alpine:latest
 RUN apk add --no-cache ca-certificates
