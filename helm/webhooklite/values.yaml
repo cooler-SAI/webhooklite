@@ -31,7 +31,7 @@ clusterRole:
   rules:
     pods:
       verbs: ["get", "list", "watch"]
-    webhookconfigs:
+    webhook-configs:
       verbs: ["get", "list", "watch", "update"]
 
 clusterRoleBinding:
