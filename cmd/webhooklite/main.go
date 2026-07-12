@@ -19,11 +19,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// handleValidate processes the admission review request and applies security policies
 func handleValidate(w http.ResponseWriter, r *http.Request) {
 	log.Println("🔍 Webhook called for validation")
 
-	// Read request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("❌ Error reading body: %v", err)
@@ -39,7 +37,6 @@ func handleValidate(w http.ResponseWriter, r *http.Request) {
 		}
 	}(r.Body)
 
-	// Decode admission review
 	var admissionReview admissionv1.AdmissionReview
 	if err := json.Unmarshal(body, &admissionReview); err != nil {
 		log.Printf("❌ Error decoding JSON: %v", err)
@@ -53,7 +50,6 @@ func handleValidate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Unmarshal pod object
 	var pod corev1.Pod
 	if err := json.Unmarshal(admissionReview.Request.Object.Raw, &pod); err != nil {
 		log.Printf("❌ Error unmarshaling pod: %v", err)
@@ -160,7 +156,6 @@ func handleValidate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Build response message
 	message := ""
 	if !allowed {
 		message = strings.Join(violations, "; ")
@@ -169,7 +164,6 @@ func handleValidate(w http.ResponseWriter, r *http.Request) {
 		log.Printf("✅ ALLOWED: %s", podName)
 	}
 
-	// Create admission response
 	admissionResponse := &admissionv1.AdmissionResponse{
 		UID:     admissionReview.Request.UID,
 		Allowed: allowed,
@@ -182,7 +176,6 @@ func handleValidate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Build response review
 	responseReview := admissionv1.AdmissionReview{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "admission.k8s.io/v1",
@@ -191,7 +184,6 @@ func handleValidate(w http.ResponseWriter, r *http.Request) {
 		Response: admissionResponse,
 	}
 
-	// Send response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
@@ -202,13 +194,11 @@ func handleValidate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleHealth provides a health check endpoint
 func handleHealth(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	_, _ = fmt.Fprintf(w, "ok")
 }
 
-// handleRoot displays basic information about the webhook
 func handleRoot(w http.ResponseWriter, _ *http.Request) {
 	_, _ = fmt.Fprintf(w, "webhooklite is running\n")
 	_, _ = fmt.Fprintf(w, "Endpoints:\n")
@@ -217,11 +207,11 @@ func handleRoot(w http.ResponseWriter, _ *http.Request) {
 }
 
 func main() {
-	// 1. Create context that listens for OS signals (Graceful Shutdown)
+	// 1. Create a context that listens for OS signals (Graceful Shutdown)
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	// 2. Set up ServeMux (isolated router is better than default)
+	// 2. Configure ServeMux (isolated router is better than default)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/validate", handleValidate)
 	mux.HandleFunc("/health", handleHealth)
@@ -235,7 +225,7 @@ func main() {
 	certFile := "/certs/tls.crt"
 	keyFile := "/certs/tls.key"
 
-	// 3. Start server in a goroutine to not block signal waiting
+	// 3. Start the server in a goroutine to not block signal waiting
 	go func() {
 		log.Printf("🔐 HTTPS server starting on port 8443")
 		log.Printf("📜 Cert: %s, Key: %s", certFile, keyFile)
@@ -250,7 +240,7 @@ func main() {
 	<-ctx.Done()
 	log.Printf("⚠️ Shutdown signal received, starting graceful shutdown...")
 
-	// 5. Give the server 5 seconds to gracefully finish existing connections
+	// 5. Give the server 5 seconds to finish existing connections
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
