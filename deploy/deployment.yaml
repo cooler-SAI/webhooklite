@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhooklite
+  namespace: default
+spec:
+  ports:
+    - port: 443
+      targetPort: 8443
+  selector:
+    app: webhooklite
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhooklite
+  namespace: default
+  labels:
+    app: webhooklite
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webhooklite
+  template:
+    metadata:
+      labels:
+        app: webhooklite
+    spec:
+      # ВАЖНО: Заставляем под запуститься на Control Plane
+      nodeSelector:
+        kubernetes.io/hostname: k8s-sec-lab-control-plane
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      # --------------------------------------------------
+      containers:
+        - name: webhooklite
+          image: webhooklite:v0.1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8443
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+              readOnly: true
+      volumes:
+        - name: certs
+          secret:
+            secretName: webhooklite-certs

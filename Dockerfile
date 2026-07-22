@@ -5,7 +5,9 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
+# Copying all code for building the binary
 COPY . .
+
 # Build the binary
 RUN CGO_ENABLED=0 GOOS=linux go build -mod=mod -o webhook ./cmd/webhooklite
 
