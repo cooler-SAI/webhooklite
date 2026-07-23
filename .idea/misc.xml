@@ -197,4 +197,19 @@
       </profile-state>
     </entry>
   </component>
+  <component name="excludedPrintfFunctions.xml">
+    <option name="excludedDescriptors">
+      <set>
+        <PrintfFuncDescriptorState>
+          <option name="importPath" value="fmt" />
+          <option name="name" value="Fprintf" />
+        </PrintfFuncDescriptorState>
+      </set>
+    </option>
+    <option name="excludedNames">
+      <set>
+        <option value="Fprintf" />
+      </set>
+    </option>
+  </component>
 </project>

@@ -28,7 +28,7 @@ spec:
       labels:
         app: webhooklite
     spec:
-      # ВАЖНО: Заставляем под запуститься на Control Plane
+      # IMPORTANT! Try to run on Control Plane
       nodeSelector:
         kubernetes.io/hostname: k8s-sec-lab-control-plane
       tolerations:
@@ -42,6 +42,21 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 8443
+          # Health probes for Kubernetes
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8443
+              scheme: HTTPS
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8443
+              scheme: HTTPS
+            initialDelaySeconds: 3
+            periodSeconds: 5
           volumeMounts:
             - name: certs
               mountPath: /certs
