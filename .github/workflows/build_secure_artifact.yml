@@ -93,6 +93,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ steps.image_tag.outputs.IMAGE_TAG }}
+                ${{ env.REGISTRY }}/${{ github.repository }}:latest
           platforms: linux/amd64
           cache-from: type=gha
           cache-to: type=gha,mode=max

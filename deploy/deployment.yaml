@@ -37,8 +37,8 @@ spec:
       # --------------------------------------------------
       containers:
         - name: webhooklite
-          image: webhooklite:v0.1
-          imagePullPolicy: Never
+          image: ghcr.io/cooler-sai/webhooklite:latest
+          imagePullPolicy: Always
           securityContext:
             runAsNonRoot: true
             allowPrivilegeEscalation: false
