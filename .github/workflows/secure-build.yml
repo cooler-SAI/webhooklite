@@ -81,10 +81,15 @@ jobs:
       - name: Set up Image Tag
         id: image_tag
         run: |
+          # Force repository name to lowercase to avoid Docker reference errors
           REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE_TAG=${{ env.REGISTRY }}/$REPO_NAME/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          
+          # Form clean tags without duplicating the image name
+          IMAGE_TAG=${{ env.REGISTRY }}/$REPO_NAME:${{ github.sha }}
+          LATEST_TAG=${{ env.REGISTRY }}/$REPO_NAME:latest
+          
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_OUTPUT
-          echo "IMAGE_NAME=${{ env.REGISTRY }}/$REPO_NAME/${{ env.IMAGE_NAME }}" >> $GITHUB_OUTPUT
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_OUTPUT
 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
@@ -92,8 +97,9 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ steps.image_tag.outputs.IMAGE_TAG }}
-                ${{ env.REGISTRY }}/${{ github.repository }}:latest
+          tags: |
+            ${{ steps.image_tag.outputs.IMAGE_TAG }}
+            ${{ steps.image_tag.outputs.LATEST_TAG }}
           platforms: linux/amd64
           cache-from: type=gha
           cache-to: type=gha,mode=max
