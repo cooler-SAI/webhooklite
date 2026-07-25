@@ -24,6 +24,6 @@ COPY --from=builder /app/webhook .
 # Set proper ownership
 RUN chown -R appuser:appgroup /app
 
-USER appuser
+USER 10001:10001
 EXPOSE 8443
 CMD ["./webhook"]

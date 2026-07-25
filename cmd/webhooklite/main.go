@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"slices"
 	"strings"
 	"syscall"
 	"time"
@@ -17,6 +18,21 @@ import (
 	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+// Prometheus metrics
+var (
+	webhookRequestsTotal = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "webhooklite_requests_total",
+			Help: "Total number of admission review requests processed by webhooklite.",
+		},
+		[]string{"result"}, // Labels: "allowed" or "denied"
+	)
 )
 
 func handleValidate(w http.ResponseWriter, r *http.Request) {
@@ -127,18 +143,11 @@ func handleValidate(w http.ResponseWriter, r *http.Request) {
 		image := container.Image
 		registry := strings.Split(image, "/")[0]
 
-		// If no registry (nginx:1.25) → docker.io
 		if !strings.Contains(image, "/") || !strings.Contains(registry, ".") {
 			registry = "docker.io"
 		}
 
-		allowedRegistry := false
-		for _, allowed := range allowedRegistries {
-			if registry == allowed {
-				allowedRegistry = true
-				break
-			}
-		}
+		allowedRegistry := slices.Contains(allowedRegistries, registry)
 
 		if !allowedRegistry {
 			allowed = false
@@ -160,8 +169,10 @@ func handleValidate(w http.ResponseWriter, r *http.Request) {
 	if !allowed {
 		message = strings.Join(violations, "; ")
 		log.Printf("❌ REJECTED: %s - %s", podName, message)
+		webhookRequestsTotal.WithLabelValues("denied").Inc()
 	} else {
 		log.Printf("✅ ALLOWED: %s", podName)
+		webhookRequestsTotal.WithLabelValues("allowed").Inc()
 	}
 
 	admissionResponse := &admissionv1.AdmissionResponse{
@@ -203,18 +214,19 @@ func handleRoot(w http.ResponseWriter, _ *http.Request) {
 	_, _ = fmt.Fprintf(w, "webhooklite is running\n")
 	_, _ = fmt.Fprintf(w, "Endpoints:\n")
 	_, _ = fmt.Fprintf(w, "  /health - health check\n")
+	_, _ = fmt.Fprintf(w, "  /metrics - prometheus metrics\n")
 	_, _ = fmt.Fprintf(w, "  /validate - admission webhook\n")
 }
 
 func main() {
-	// 1. Create a context that listens for OS signals (Graceful Shutdown)
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	// 2. Configure ServeMux (isolated router is better than default)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/validate", handleValidate)
 	mux.HandleFunc("/health", handleHealth)
+	mux.HandleFunc("/healthz", handleHealth) // Added and /healthz
+	mux.Handle("/metrics", promhttp.Handler())
 	mux.HandleFunc("/", handleRoot)
 
 	srv := &http.Server{
@@ -225,22 +237,19 @@ func main() {
 	certFile := "/certs/tls.crt"
 	keyFile := "/certs/tls.key"
 
-	// 3. Start the server in a goroutine to not block signal waiting
 	go func() {
 		log.Printf("🔐 HTTPS server starting on port 8443")
 		log.Printf("📜 Cert: %s, Key: %s", certFile, keyFile)
-		log.Printf("📡 Endpoints: /health, /validate")
+		log.Printf("📡 Endpoints: /health, /healthz, /metrics, /validate")
 
 		if err := srv.ListenAndServeTLS(certFile, keyFile); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("❌ Server failed: %v", err)
 		}
 	}()
 
-	// 4. Wait for SIGTERM signal from Kubernetes
 	<-ctx.Done()
 	log.Printf("⚠️ Shutdown signal received, starting graceful shutdown...")
 
-	// 5. Give the server 5 seconds to finish existing connections
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

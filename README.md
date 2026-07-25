@@ -10,6 +10,11 @@ Production-ready Kubernetes admission webhook that validates pods BEFORE they en
 
 **webhooklite** is a lightweight but powerful Kubernetes admission webhook that intercepts pod creation requests and validates them against security best practices. Unlike security scanners that detect issues after deployment, webhooklite actively blocks non-compliant pods at admission time.
 
+### Production-Ready Features
+- **Active Admission Control** - Blocks insecure pods at the API server level.
+- **Health Probes** - Built-in `/healthz` endpoint for Kubernetes liveness and readiness monitoring.
+- **Zero-Trust Baseline** - Enforces strict security contexts out of the box.
+
 ### Why use webhooklite?
 
 - **Prevents container escapes** - Blocks privileged containers and host access
