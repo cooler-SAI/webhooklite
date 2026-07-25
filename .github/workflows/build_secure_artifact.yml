@@ -31,7 +31,7 @@ jobs:
 
       - name: Build Docker Image (for scanning)
         run: |
-          docker build -t local-scan-image:${{ github.sha }} -f build/Dockerfile .
+          docker build -t local-scan-image:${{ github.sha }} .
 
       - name: 🚨 Trivy Vulnerability Scan
         id: trivy
@@ -90,7 +90,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./build/Dockerfile
+          file: ./Dockerfile
           push: true
           tags: ${{ steps.image_tag.outputs.IMAGE_TAG }}
           platforms: linux/amd64
