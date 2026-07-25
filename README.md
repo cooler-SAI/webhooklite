@@ -77,6 +77,23 @@ kubectl run bad-root --image=nginx:1.21 --overrides='{"spec":{"securityContext":
 
 # Rule 6: Host network
 kubectl run bad-hostnet --image=nginx:1.21 --overrides='{"spec":{"hostNetwork":true}}'
+
+# Rule 7: Unauthorized registry
+kubectl run bad-registry --image=evilcorp.io/malware:1.0
+
+# Rule 8: Docker socket mounting
+kubectl run bad-dockersock --image=nginx:1.21 --overrides='{
+  "spec": {
+    "securityContext": {"runAsNonRoot": true},
+    "containers": [{
+      "name": "nginx",
+      "image": "nginx:1.21",
+      "resources": {"limits": {"cpu": "100m", "memory": "128Mi"}},
+      "volumeMounts": [{"mountPath": "/var/run/docker.sock", "name": "dockersock"}]
+    }],
+    "volumes": [{"name": "dockersock", "hostPath": {"path": "/var/run/docker.sock"}}]
+  }
+}'
 ```
 
 ### ✅ Should be ALLOWED
