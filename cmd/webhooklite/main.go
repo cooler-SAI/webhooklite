@@ -213,7 +213,6 @@ func handleHealth(w http.ResponseWriter, _ *http.Request) {
 func handleRoot(w http.ResponseWriter, _ *http.Request) {
 	_, _ = fmt.Fprintf(w, "webhooklite is running\n")
 	_, _ = fmt.Fprintf(w, "Endpoints:\n")
-	_, _ = fmt.Fprintf(w, "  /health - health check\n")
 	_, _ = fmt.Fprintf(w, "  /healthz - health check improved\n")
 	_, _ = fmt.Fprintf(w, "  /metrics - prometheus metrics\n")
 	_, _ = fmt.Fprintf(w, "  /validate - admission webhook\n")
@@ -225,7 +224,6 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/validate", handleValidate)
-	mux.HandleFunc("/health", handleHealth)
 	mux.HandleFunc("/healthz", handleHealth) // Added and /healthz
 	mux.Handle("/metrics", promhttp.Handler())
 	mux.HandleFunc("/", handleRoot)
@@ -241,7 +239,7 @@ func main() {
 	go func() {
 		log.Printf("🔐 HTTPS server starting on port 8443")
 		log.Printf("📜 Cert: %s, Key: %s", certFile, keyFile)
-		log.Printf("📡 Endpoints: /health, /healthz, /metrics, /validate")
+		log.Printf("📡 Endpoints: /healthz, /metrics, /validate")
 
 		if err := srv.ListenAndServeTLS(certFile, keyFile); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("❌ Server failed: %v", err)
