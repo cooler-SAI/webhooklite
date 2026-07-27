@@ -214,6 +214,7 @@ func handleRoot(w http.ResponseWriter, _ *http.Request) {
 	_, _ = fmt.Fprintf(w, "webhooklite is running\n")
 	_, _ = fmt.Fprintf(w, "Endpoints:\n")
 	_, _ = fmt.Fprintf(w, "  /health - health check\n")
+	_, _ = fmt.Fprintf(w, "  /healthz - health check improved\n")
 	_, _ = fmt.Fprintf(w, "  /metrics - prometheus metrics\n")
 	_, _ = fmt.Fprintf(w, "  /validate - admission webhook\n")
 }
