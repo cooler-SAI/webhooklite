@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: good-pod
+  namespace: default
+  labels:
+    app: good-app
+spec:
+  containers:
+    - name: alpine
+      image: alpine:3.19.1
+      command: ["sleep", "3600"]
+      resources:
+        requests:
+          cpu: "10m"
+          memory: "32Mi"
+        limits:
+          cpu: "50m"
+          memory: "64Mi"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
