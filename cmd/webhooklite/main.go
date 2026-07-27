@@ -224,7 +224,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/validate", handleValidate)
-	mux.HandleFunc("/healthz", handleHealth) // Added and /healthz
+	mux.HandleFunc("/healthz", handleHealth)
 	mux.Handle("/metrics", promhttp.Handler())
 	mux.HandleFunc("/", handleRoot)
 
