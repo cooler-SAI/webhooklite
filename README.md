@@ -24,16 +24,16 @@ Production-ready Kubernetes admission webhook that validates pods BEFORE they en
 
 ## 8 security rules
 
-| # | Rule | Blocks | Why |
-|---|------|--------|-----|
-| 1 | No privileged containers | `privileged: true` | Prevents container escape |
-| 2 | No latest tags | `image: nginx:latest` | Ensures version pinning |
-| 3 | Resource limits required | Missing `resources.limits` | Prevents DoS attacks |
-| 4 | runAsNonRoot required | `runAsNonRoot: false` | Reduces attack surface |
-| 5 | No privilege escalation | `allowPrivilegeEscalation: true` | Blocks CAP_SYS_ADMIN |
-| 6 | No host access | `hostNetwork` / `hostPID` | Isolates from host |
-| 7 | Allowed registries only | Unknown registries | Prevents supply chain attacks |
-| 8 | No docker.socket | Mounting `/var/run/docker.sock` | Blocks container breakout |
+| # | Rule                     | Blocks                           | Why                           |
+|---|--------------------------|----------------------------------|-------------------------------|
+| 1 | No privileged containers | `privileged: true`               | Prevents container escape     |
+| 2 | No latest tags           | `image: nginx:latest`            | Ensures version pinning       |
+| 3 | Resource limits required | Missing `resources.limits`       | Prevents DoS attacks          |
+| 4 | runAsNonRoot required    | `runAsNonRoot: false`            | Reduces attack surface        |
+| 5 | No privilege escalation  | `allowPrivilegeEscalation: true` | Blocks CAP_SYS_ADMIN          |
+| 6 | No host access           | `hostNetwork` / `hostPID`        | Isolates from host            |
+| 7 | Allowed registries only  | Unknown registries               | Prevents supply chain attacks |
+| 8 | No docker.socket         | Mounting `/var/run/docker.sock`  | Blocks container breakout     |
 
 ## Quick start
 
@@ -96,7 +96,7 @@ kubectl run bad-dockersock --image=nginx:1.21 --overrides='{
 }'
 ```
 
-### ✅ Should be ALLOWED
+### ✅ Should be ALLOWED :
 
 ```bash
 kubectl run good-pod --image=nginx:1.21 --overrides='{
