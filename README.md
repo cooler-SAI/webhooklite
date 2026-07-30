@@ -63,26 +63,38 @@ go build -o webhook webhook.go
 
 ### ❌ Should be BLOCKED
 
+#### Rule 1: Privileged container
 ```bash
-# Rule 1: Privileged container
 kubectl run bad-priv --image=nginx:1.21 --privileged=true
+```
 
-# Rule 2: Latest tag
+####  Rule 2: Latest tag
+```bash
 kubectl run bad-latest --image=nginx:latest
+```
 
-# Rule 3: No resource limits
+####  Rule 3: No resource limits
+```bash
 kubectl run bad-nolimits --image=nginx:1.21
+```
 
-# Rule 4: Root user
+####  Rule 4: Root user
+```bash
 kubectl run bad-root --image=nginx:1.21 --overrides='{"spec":{"securityContext":{"runAsNonRoot":false}}}'
+```
 
-# Rule 6: Host network
+####  Rule 6: Host network
+```bash
 kubectl run bad-hostnet --image=nginx:1.21 --overrides='{"spec":{"hostNetwork":true}}'
+```
 
-# Rule 7: Unauthorized registry
+####  Rule 7: Unauthorized registry
+```bash
 kubectl run bad-registry --image=evilcorp.io/malware:1.0
+```
 
-# Rule 8: Docker socket mounting
+####  Rule 8: Docker socket mounting
+```bash
 kubectl run bad-dockersock --image=nginx:1.21 --overrides='{
 "spec": {
 "securityContext": {"runAsNonRoot": true},
@@ -95,8 +107,10 @@ kubectl run bad-dockersock --image=nginx:1.21 --overrides='{
 "volumes": [{"name": "dockersock", "hostPath": {"path": "/var/run/docker.sock"}}]
 }
 }'
+```
 
-# Rule 9: Missing 'app' label
+####  Rule 9: Missing 'app' label
+```bash
 kubectl run bad-label --image=nginx:1.21 --overrides='{
 "spec": {
 "securityContext": {"runAsNonRoot": true},
