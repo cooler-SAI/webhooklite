@@ -24,17 +24,17 @@ Production-ready Kubernetes admission webhook that validates pods BEFORE they en
 
 ## 9 security rules
 
-| # | Rule | Blocks | Why |
+| # | Rule                     | Blocks                           | Why                           |
 |---|--------------------------|----------------------------------|-------------------------------|
-| 1 | No privileged containers | `privileged: true` | Prevents container escape |
-| 2 | No latest tags | `image: nginx:latest` | Ensures version pinning |
-| 3 | Resource limits required | Missing `resources.limits` | Prevents DoS attacks |
-| 4 | runAsNonRoot required | `runAsNonRoot: false` | Reduces attack surface |
-| 5 | No privilege escalation | `allowPrivilegeEscalation: true` | Blocks CAP_SYS_ADMIN |
-| 6 | No host access | `hostNetwork` / `hostPID` | Isolates from host |
-| 7 | Allowed registries only | Unknown registries | Prevents supply chain attacks |
-| 8 | No docker.socket | Mounting `/var/run/docker.sock` | Blocks container breakout |
-| 9 | Require 'app' label | Missing `metadata.labels.app` | Improves resource tracking |
+| 1 | No privileged containers | `privileged: true`               | Prevents container escape     |
+| 2 | No latest tags           | `image: nginx:latest`            | Ensures version pinning       |
+| 3 | Resource limits required | Missing `resources.limits`       | Prevents DoS attacks          |
+| 4 | runAsNonRoot required    | `runAsNonRoot: false`            | Reduces attack surface        |
+| 5 | No privilege escalation  | `allowPrivilegeEscalation: true` | Blocks CAP_SYS_ADMIN          |
+| 6 | No host access           | `hostNetwork` / `hostPID`        | Isolates from host            |
+| 7 | Allowed registries only  | Unknown registries               | Prevents supply chain attacks |
+| 8 | No docker.socket         | Mounting `/var/run/docker.sock`  | Blocks container breakout     |
+| 9 | Require 'app' label      | Missing `metadata.labels.app`    | Improves resource tracking    |
 
 ## Quick start
 
