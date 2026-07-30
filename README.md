@@ -4,7 +4,7 @@
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-1.34-blue.svg)](https://kubernetes.io/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Production-ready Kubernetes admission webhook that validates pods BEFORE they enter the cluster. Enforces 8 security policies to prevent insecure workloads from running.
+Production-ready Kubernetes admission webhook that validates pods BEFORE they enter the cluster. Enforces 9 security policies to prevent insecure workloads from running.
 
 ## Overview
 
@@ -22,18 +22,19 @@ Production-ready Kubernetes admission webhook that validates pods BEFORE they en
 - **Supply chain security** - Restricts image registries and blocks latest tags
 - **Zero runtime overhead** - No sidecars or agents, pure admission control
 
-## 8 security rules
+## 9 security rules
 
-| # | Rule                     | Blocks                           | Why                           |
+| # | Rule | Blocks | Why |
 |---|--------------------------|----------------------------------|-------------------------------|
-| 1 | No privileged containers | `privileged: true`               | Prevents container escape     |
-| 2 | No latest tags           | `image: nginx:latest`            | Ensures version pinning       |
-| 3 | Resource limits required | Missing `resources.limits`       | Prevents DoS attacks          |
-| 4 | runAsNonRoot required    | `runAsNonRoot: false`            | Reduces attack surface        |
-| 5 | No privilege escalation  | `allowPrivilegeEscalation: true` | Blocks CAP_SYS_ADMIN          |
-| 6 | No host access           | `hostNetwork` / `hostPID`        | Isolates from host            |
-| 7 | Allowed registries only  | Unknown registries               | Prevents supply chain attacks |
-| 8 | No docker.socket         | Mounting `/var/run/docker.sock`  | Blocks container breakout     |
+| 1 | No privileged containers | `privileged: true` | Prevents container escape |
+| 2 | No latest tags | `image: nginx:latest` | Ensures version pinning |
+| 3 | Resource limits required | Missing `resources.limits` | Prevents DoS attacks |
+| 4 | runAsNonRoot required | `runAsNonRoot: false` | Reduces attack surface |
+| 5 | No privilege escalation | `allowPrivilegeEscalation: true` | Blocks CAP_SYS_ADMIN |
+| 6 | No host access | `hostNetwork` / `hostPID` | Isolates from host |
+| 7 | Allowed registries only | Unknown registries | Prevents supply chain attacks |
+| 8 | No docker.socket | Mounting `/var/run/docker.sock` | Blocks container breakout |
+| 9 | Require 'app' label | Missing `metadata.labels.app` | Improves resource tracking |
 
 ## Quick start
 
@@ -42,7 +43,7 @@ git clone https://github.com/cooler-SAI/webhooklite.git
 cd webhooklite
 
 # Generate TLS certificates
-./scripts/generate-certs.sh  # Linux/Mac
+./scripts/generate-certs.sh # Linux/Mac
 .\scripts\generate-certs.ps1 # Windows
 
 # Deploy webhook
@@ -83,16 +84,28 @@ kubectl run bad-registry --image=evilcorp.io/malware:1.0
 
 # Rule 8: Docker socket mounting
 kubectl run bad-dockersock --image=nginx:1.21 --overrides='{
-  "spec": {
-    "securityContext": {"runAsNonRoot": true},
-    "containers": [{
-      "name": "nginx",
-      "image": "nginx:1.21",
-      "resources": {"limits": {"cpu": "100m", "memory": "128Mi"}},
-      "volumeMounts": [{"mountPath": "/var/run/docker.sock", "name": "dockersock"}]
-    }],
-    "volumes": [{"name": "dockersock", "hostPath": {"path": "/var/run/docker.sock"}}]
-  }
+"spec": {
+"securityContext": {"runAsNonRoot": true},
+"containers": [{
+"name": "nginx",
+"image": "nginx:1.21",
+"resources": {"limits": {"cpu": "100m", "memory": "128Mi"}},
+"volumeMounts": [{"mountPath": "/var/run/docker.sock", "name": "dockersock"}]
+}],
+"volumes": [{"name": "dockersock", "hostPath": {"path": "/var/run/docker.sock"}}]
+}
+}'
+
+# Rule 9: Missing 'app' label
+kubectl run bad-label --image=nginx:1.21 --overrides='{
+"spec": {
+"securityContext": {"runAsNonRoot": true},
+"containers": [{
+"name": "nginx",
+"image": "nginx:1.21",
+"resources": {"limits": {"cpu": "100m", "memory": "128Mi"}}
+}]
+}
 }'
 ```
 
@@ -100,14 +113,16 @@ kubectl run bad-dockersock --image=nginx:1.21 --overrides='{
 
 ```bash
 kubectl run good-pod --image=nginx:1.21 --overrides='{
-  "spec": {
-    "securityContext": {"runAsNonRoot": true},
-    "containers": [{
-      "name": "nginx",
-      "image": "nginx:1.21",
-      "resources": {"limits": {"cpu": "100m", "memory": "128Mi"}}
-    }]
-  }
+"metadata": {
+"labels": {"app": "good-pod"}
+},
+"spec": {
+"securityContext": {"runAsNonRoot": true},
+"containers": [{
+"name": "nginx",
+"image": "nginx:1.21",
+"resources": {"limits": {"cpu": "100m", "memory": "128Mi"}}
+}]
+}
 }'
 ```
-
