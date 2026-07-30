@@ -24,7 +24,7 @@ func TestHandleValidate_RejectPrivileged(t *testing.T) {
 					Name:  "nginx",
 					Image: "nginx:latest",
 					SecurityContext: &corev1.SecurityContext{
-						Privileged: boolPtr(true),
+						Privileged: new(true),
 					},
 				},
 			},
@@ -59,8 +59,18 @@ func TestHandleValidate_RejectLatestTag(t *testing.T) {
 					Name:  "nginx",
 					Image: "nginx:latest",
 					SecurityContext: &corev1.SecurityContext{
-						RunAsNonRoot:             boolPtr(true),
-						AllowPrivilegeEscalation: boolPtr(false),
+						Capabilities:             nil,
+						Privileged:               nil,
+						SELinuxOptions:           nil,
+						WindowsOptions:           nil,
+						RunAsUser:                nil,
+						RunAsGroup:               nil,
+						RunAsNonRoot:             new(true),
+						ReadOnlyRootFilesystem:   nil,
+						AllowPrivilegeEscalation: new(false),
+						ProcMount:                nil,
+						SeccompProfile:           nil,
+						AppArmorProfile:          nil,
 					},
 				},
 			},
@@ -91,8 +101,8 @@ func TestHandleValidate_RejectNoResourceLimits(t *testing.T) {
 					Name:  "nginx",
 					Image: "nginx:1.25",
 					SecurityContext: &corev1.SecurityContext{
-						RunAsNonRoot:             boolPtr(true),
-						AllowPrivilegeEscalation: boolPtr(false),
+						RunAsNonRoot:             new(true),
+						AllowPrivilegeEscalation: new(false),
 					},
 				},
 			},
@@ -138,8 +148,8 @@ func TestHandleValidate_AcceptGoodPod(t *testing.T) {
 						},
 					},
 					SecurityContext: &corev1.SecurityContext{
-						RunAsNonRoot:             boolPtr(true),
-						AllowPrivilegeEscalation: boolPtr(false),
+						RunAsNonRoot:             new(true),
+						AllowPrivilegeEscalation: new(false),
 					},
 				},
 			},
@@ -161,7 +171,7 @@ func TestHandleValidate_AcceptGoodPod(t *testing.T) {
 }
 
 // Advance functions
-func boolPtr(b bool) *bool { return &b }
+//go:fix inline
 
 func createAdmissionRequest(pod *corev1.Pod) *http.Request {
 	podBytes, _ := json.Marshal(pod)
