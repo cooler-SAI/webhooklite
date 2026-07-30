@@ -165,6 +165,13 @@ func handleValidate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// ========== RULE 9: Require 'app' label ==========
+	if len(pod.Labels) == 0 || pod.Labels["app"] == "" {
+		allowed = false
+		violations = append(violations, "Pod must have an 'app' label for tracking")
+		log.Printf("❌ REJECTED: %s - missing 'app' label", podName)
+	}
+
 	message := ""
 	if !allowed {
 		message = strings.Join(violations, "; ")
