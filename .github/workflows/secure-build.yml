@@ -1,4 +1,4 @@
-# .github/workflows/secure-build.yml
+# .github/workflows/build_secure_artifact.yml
 name: 🛡️ Secure Artifact Build & Sign
 
 on:
