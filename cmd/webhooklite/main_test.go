@@ -124,7 +124,7 @@ func TestHandleValidate_RejectNoResourceLimits(t *testing.T) {
 }
 
 func TestHandleValidate_AcceptGoodPod(t *testing.T) {
-	// Create right pod
+	// Create right pod with label
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "good-pod",
