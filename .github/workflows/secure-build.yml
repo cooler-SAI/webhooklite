@@ -81,13 +81,12 @@ jobs:
       - name: Set up Image Tag
         id: image_tag
         run: |
-          # Force repository name to lowercase to avoid Docker reference errors
           REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          
-          # Form clean tags without duplicating the image name
-          IMAGE_TAG=${{ env.REGISTRY }}/$REPO_NAME:${{ github.sha }}
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+
+          IMAGE_TAG=${{ env.REGISTRY }}/$REPO_NAME:$SHORT_SHA
           LATEST_TAG=${{ env.REGISTRY }}/$REPO_NAME:latest
-          
+
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_OUTPUT
           echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_OUTPUT
 
