@@ -28,8 +28,8 @@ spec:
         app: webhooklite
     spec:
       # IMPORTANT! Try to run on Control Plane
-      nodeSelector:
-        kubernetes.io/hostname: k8s-sec-lab-control-plane
+      # nodeSelector:
+      #  kubernetes.io/hostname: k8s-sec-lab-control-plane
       tolerations:
         - key: node-role.kubernetes.io/control-plane
           operator: Exists
