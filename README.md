@@ -25,6 +25,7 @@ Production-ready Kubernetes admission webhook that validates pods **BEFORE** the
   - [❌ Should be BLOCKED](#-should-be-blocked)
   - [✅ Should be ALLOWED](#-should-be-allowed)
 - [Troubleshooting](#troubleshooting)
+- [ArgoCD Access & Port-Forward (PowerShell)](#argocd-access--port-forward-powershell)
 
 ---
 
@@ -304,7 +305,7 @@ kubectl run bad-label --image=nginx:1.21 --overrides='{
 kubectl apply -f deploy/good-pod.yaml
 ```
 
-Or via `kubectl run`:
+Or via `kubectl run` :
 
 ```bash
 kubectl run good-pod --image=nginx:1.21 --overrides='{
@@ -348,3 +349,18 @@ kubectl describe validatingwebhookconfiguration webhooklite-validation
 - **`x509: certificate signed by unknown authority`**: Ensure `caBundle` in your `ValidatingWebhookConfiguration` matches base64-encoded `certs/ca.crt` or `certs/tls.crt`.
 - **System Namespaces Blocked**: Ensure your `ValidatingWebhookConfiguration` excludes namespaces like `kube-system`, `argocd`, and `webhook-system` using `namespaceSelector`.
 - **Timeout contacting webhook**: Ensure webhook service port mapping (443 -> 8443) and firewall/CNI network policies permit traffic from the API server to the webhook pod.
+
+---
+
+## ArgoCD Access & Port-Forward (PowerShell)
+
+### Port-Forward ArgoCD UI
+```powershell
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+> ArgoCD Web UI will be available at: **[https://localhost:8080](https://localhost:8080)** (Username: `admin`)
+
+### Get Initial Admin Password (PowerShell)
+```powershell
+[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String((kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}")))
+```
