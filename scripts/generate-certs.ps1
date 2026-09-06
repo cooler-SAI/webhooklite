@@ -3,14 +3,14 @@ $Service = "webhooklite"
 
 Write-Host "Generating certificates for $Service in namespace $Namespace..." -ForegroundColor Cyan
 
-# Создаем временную директорию для генерации, чтобы не засорять корень проекта
+# Create temprorary direction
 $certDir = "$PSScriptRoot\..\certs"
 if (!(Test-Path $certDir)) {
     New-Item -ItemType Directory -Path $certDir | Out-Null
 }
 
 $caKey = "$certDir\ca.key"
-$caCert = "$certDir\ca.crt"
+$caCert = "$certDir\ca.cr"
 $tlsKey = "$certDir\tls.key"
 $tlsCert = "$certDir\tls.crt"
 $serverCsr = "$certDir\server.csr"
