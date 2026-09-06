@@ -1,16 +1,16 @@
-$Namespace = "default"
+$Namespace = "webhook-system"
 $Service = "webhooklite"
 
 Write-Host "Generating certificates for $Service in namespace $Namespace..." -ForegroundColor Cyan
 
-# Create temprorary direction
+# Create temporary directory
 $certDir = "$PSScriptRoot\..\certs"
 if (!(Test-Path $certDir)) {
     New-Item -ItemType Directory -Path $certDir | Out-Null
 }
 
 $caKey = "$certDir\ca.key"
-$caCert = "$certDir\ca.cr"
+$caCert = "$certDir\ca.crt"
 $tlsKey = "$certDir\tls.key"
 $tlsCert = "$certDir\tls.crt"
 $serverCsr = "$certDir\server.csr"
